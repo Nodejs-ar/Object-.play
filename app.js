@@ -58,19 +58,27 @@ function solution(T) {
 
 };
 
-function count(s) {
-  if (typeof s == 'number') return 1;
-  if(!s) return 0;
-  if(s.length) return 0;
-  if (typeof s == 'object') {
-    var l = 0;
-    for(var i in s) {
-      l += count(s[i]);
+function count(T) {
+  // Usando el modulo traverse de Substack.
+  // https://github.com/substack/js-traverse
+  var traverse = require("traverse");
+  // Usando el metodo reduce de traverse
+  // que devuelve todos los nodos y permite identificar
+  // los nodos extremos (isLeaf)
+  var leaves = traverse(T).reduce(function(accumulated, val) {
+    if (this.isLeaf && typeof val === "number"
+      // Solo dentro de los Object()
+      && typeof this.parent.node === 'object'
+      // ...los que aparecen dentro de un String(), Array() 
+      // u otra cosa que no sea Object() no sirve
+      && (Object.getPrototypeOf(this.parent.node) === Object.prototype)
+    ) {
+      accumulated.push(val);
     }
-    return l;
-  }
+    return accumulated;
+  }, []);
 
-  return 0;
+  return leaves.length;
 }
 
 /* La parte mas obvia */
